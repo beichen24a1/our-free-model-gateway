@@ -24,7 +24,7 @@
 需要 **Node.js >= 22.19**，以及系统自带的 `tar`（Windows 10+ / macOS / Linux 都有）。
 
 ```bash
-git clone https://github.com/audiencegeg-glitch/our-free-model-gateway.git
+git clone https://github.com/beichen24a1/our-free-model-gateway.git
 cd our-free-model-gateway
 
 node scripts/setup.mjs    # 首次：拉取上游依赖并裁剪（保留 46 个文件 / 约 560 KB）
