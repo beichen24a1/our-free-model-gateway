@@ -42,6 +42,22 @@ function fail(message) {
   process.exit(1)
 }
 
+/**
+ * 选一个能解 .tgz 的 tar。
+ *
+ * Windows 上 PATH 里可能同时存在两个 tar：System32 里的 bsdtar（内置 gzip 解压）
+ * 和 Git for Windows 的 GNU tar（要另找 gzip、且把 `C:` 当远端主机）。
+ * 优先用前者的绝对路径，避开这两个坑。
+ */
+function tarBinary() {
+  if (process.platform === 'win32') {
+    const root = process.env.SystemRoot ?? 'C:\\Windows'
+    const systemTar = path.join(root, 'System32', 'tar.exe')
+    if (fs.existsSync(systemTar)) return systemTar
+  }
+  return 'tar'
+}
+
 const args = process.argv.slice(2)
 const checkOnly = args.includes('--check')
 const fromIndex = args.indexOf('--from')
@@ -107,11 +123,15 @@ async function main() {
 
     const unpacked = path.join(work, 'unpacked')
     fs.mkdirSync(unpacked, { recursive: true })
+    // 两点都在避坑：
+    // 1. cwd + 相对文件名 —— GNU tar（Git for Windows 的 usr/bin）会把 `C:\...`
+    //    里的 `C:` 当成远端主机，报 "Cannot connect to C: resolve failed"。
+    // 2. Windows 上优先用 System32 的 bsdtar —— GNU tar 解 gzip 还要另找 gzip 子进程，
+    //    而 bsdtar 内置解压，不依赖 PATH 里有没有 gzip。
     try {
-      // stdio 用 ignore：某些沙箱环境不允许子进程走管道（EPERM）。
-      execFileSync('tar', ['-xzf', tarball, '-C', unpacked], { stdio: 'ignore' })
+      execFileSync(tarBinary(), ['-xzf', 'pkg.tgz', '-C', 'unpacked'], { cwd: work, stdio: 'ignore' })
     } catch (error) {
-      fail(`解压失败（需要系统里有 tar）：${error.message}`)
+      fail(`解压失败：${error.message}\n       需要能解 .tgz 的 tar（Windows 10+ 自带的 System32\\tar.exe 即可）。`)
     }
 
     const source = path.join(unpacked, 'package')

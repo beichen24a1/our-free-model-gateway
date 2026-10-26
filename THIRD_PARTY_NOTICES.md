@@ -20,7 +20,7 @@
 - `src/core/runtime.js` —— `createRuntimeStores` / `createModelRuntime`
 - `src/forward.js` —— `startForwardServer` / `startLanRelay`
 
-其余文件（适配器、上游协议、流式解析、工具指纹、省 Token 等）由这两个模块间接引用，共 46 个文件。
+其余文件（适配器、上游协议、流式解析、工具指纹、省 Token 等）由这两个模块间接引用，共 47 个文件（另有 1 个 `.version` 标记）。
 裁剪逻辑在 `scripts/setup.mjs` 的 `collectClosure()` 里，可复核。
 
 升级方法见 README 的「上游插件升级了怎么办」。

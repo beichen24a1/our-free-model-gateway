@@ -446,7 +446,52 @@ async function main() {
     return rows.map(row => ({ ...row, supports_vision: capability(row.id) }))
   }
 
+  /**
+   * 请求体基本校验：缺字段 / 类型错在本地就报 400。
+   *
+   * 不校验的后果是这些请求被原样转给上游，上游回一个 HTTP 400，再被网关包成
+   * 502「upstream HTTP 400」——调用方看到的是一次服务端错误，实际是自己传错了。
+   * Anthropic 端点（/v1/messages）已由 forward.js 的 fromAnthropicRequest 校验，
+   * 这里只补 OpenAI 的两条路。
+   */
+  const validateBody = request => {
+    const invalid = message => Object.assign(new Error(message), { statusCode: 400 })
+
+    // Anthropic 路径：forward 已经投影成 harness messages。
+    if (Array.isArray(request.messages)) {
+      if (request.messages.length === 0) throw invalid('`messages` must not be empty')
+      return
+    }
+
+    const body = request.openAi
+    if (body === null || typeof body !== 'object') return
+
+    const hasMessages = Array.isArray(body.messages)
+    // responses 端点：forward 一定构造了 input 数组（可能为空）。
+    const hasInput = Object.hasOwn(body, 'input')
+    if (!hasMessages && !hasInput) {
+      throw invalid('`messages` is required and must be a non-empty array')
+    }
+    if (hasMessages) {
+      if (body.messages.length === 0) throw invalid('`messages` must not be empty')
+      for (const [index, row] of body.messages.entries()) {
+        if (row === null || typeof row !== 'object' || Array.isArray(row)) {
+          throw invalid(`\`messages[${index}]\` must be an object`)
+        }
+        if (row.role !== undefined && typeof row.role !== 'string') {
+          throw invalid(`\`messages[${index}].role\` must be a string`)
+        }
+      }
+    } else if (!Array.isArray(body.input) || body.input.length === 0) {
+      throw invalid('`input` must be a non-empty string or array')
+    }
+    if (body.tools !== undefined && !Array.isArray(body.tools)) {
+      throw invalid('`tools` must be an array')
+    }
+  }
+
   const complete = async (request, onChunk) => {
+    validateBody(request)
     const mode = request.model
     // 明确选了纯文本模式却带图片：直接说清楚，不静默丢图、也不偷偷换模型。
     if (mode === 'text' && wantsVision(request)) {

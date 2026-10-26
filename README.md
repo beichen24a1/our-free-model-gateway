@@ -27,7 +27,7 @@
 git clone https://github.com/beichen24a1/our-free-model-gateway.git
 cd our-free-model-gateway
 
-node scripts/setup.mjs    # 首次：拉取上游依赖并裁剪（保留 46 个文件 / 约 560 KB）
+node scripts/setup.mjs    # 首次：拉取上游依赖并裁剪（保留 47 个文件 / 约 680 KB）
 node server.mjs           # 启动；Windows 也可以双击 start.cmd
 ```
 
@@ -196,10 +196,11 @@ AstrBot 的「配置文件」里可以给不同场景挂不同的对话模型，
 | `default` | 固定指向 `kilo-auto/free` | 兼容旧配置 |
 | 真实模型 id | 精确指定，不经路由 | 调试或锁定某个模型 |
 
-`/v1/models` 每行都带 **`supports_vision`** 字段（`true` / `false`），客户端可以自己过滤。当前 25 个真实模型里只有 6 个是视觉模型：
+`/v1/models` 每行都带 **`supports_vision`** 字段（`true` / `false`），客户端可以自己过滤。
+
+当前它返回 **29 行** = 3 个模式（`auto` / `text` / `vision`）+ 1 个别名（`default`）+ **25 个真实模型**。其中 `supports_vision: true` 的有 **8 个**——`auto`、`vision` 是虚拟模型，真实模型里只有这 6 个支持视觉：
 
 ```
-auto, vision,
 mimo-v2.6-flash-free,
 nvidia/nemotron-3.5-super-vl:free,
 dots-studio/dots-3-note-preview:free,
@@ -207,6 +208,8 @@ nvidia/nemotron-3.5-content-safety:free,
 nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free,
 openrouter/free
 ```
+
+> 这些数字（29 行 / 25 个模型 / 6 个视觉模型）是 2026-10-26 的实测值，会随上游清单变化，**以 `/v1/models` 的实时返回为准**。
 
 > `nemotron-3.5-super-vl-free`（不带 `nvidia/` 前缀的短名）被插件标为 text，因为它按名字前缀匹配；实际能力以 `/v1/models` 的 `supports_vision` 为准。
 
@@ -330,6 +333,7 @@ our-free-model-gateway/
 └─ scripts/
    ├─ check-models.mjs         逐个模型探测可用性
    ├─ modes.mjs                text / vision 模式分流与 400 边界
+   ├─ validate.mjs             请求体校验：缺字段/类型错的 400 回归
    ├─ smoke.mjs                冒烟：非流式 + 流式
    ├─ protocols.mjs            /v1/messages、count_tokens、/v1/responses
    └─ tools.mjs                function calling
@@ -385,7 +389,7 @@ node scripts/setup.mjs 2.2.0
 
 本仓库代码以 **MIT** 发布，见 [LICENSE](LICENSE)。
 
-`vendor/` **不在本仓库里**。`scripts/setup.mjs` 在运行时从 npm 拉取 [`dsh-our-free-model`](https://www.npmjs.com/package/dsh-our-free-model) 2.1.0（MIT，Copyright (c) 2026 Ebony-Vinyl），按 import 闭包只保留 46 个文件写进 `vendor/`。仓库本身不含任何第三方代码——这样既不用重分发别人的代码，clone 下来也不会多出几百 KB 用不上的东西。第三方组件的完整声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+`vendor/` **不在本仓库里**。`scripts/setup.mjs` 在运行时从 npm 拉取 [`dsh-our-free-model`](https://www.npmjs.com/package/dsh-our-free-model) 2.1.0（MIT，Copyright (c) 2026 Ebony-Vinyl），按 import 闭包只保留 47 个文件写进 `vendor/`。仓库本身不含任何第三方代码——这样既不用重分发别人的代码，clone 下来也不会多出几百 KB 用不上的东西。第三方组件的完整声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 运行时访问的 OpenCode Zen 与 Kilo AI 网关不是本仓库的组件，也不受本仓库许可证约束——使用它们即表示你自行接受其服务条款。
 
