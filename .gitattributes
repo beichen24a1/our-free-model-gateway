@@ -1,0 +1,10 @@
+# 仓库内统一用 LF，避免 vendor/ 下第三方源码被 CRLF 改写
+* text=auto eol=lf
+
+# Windows 批处理需要 CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制
+*.png binary
+*.wasm binary

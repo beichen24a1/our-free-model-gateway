@@ -1,0 +1,40 @@
+{
+  "host": "127.0.0.1",
+  "port": 18899,
+  "dataDir": "data",
+  "apiKey": "",
+  "probeOnStart": false,
+  "verbose": false,
+  "refreshMinutes": 60,
+  "aliases": {
+    "default": "kilo-auto/free"
+  },
+  "routing": {
+    "enabled": true,
+    "prefer": [
+      "kilo-auto/free",
+      "openrouter/free",
+      "cohere/north-mini-code:free",
+      "dots-studio/dots-3-note-preview:free",
+      "poolside/laguna-s-2.1:free"
+    ],
+    "vision": [
+      "nvidia/nemotron-3.5-super-vl:free",
+      "kilo-auto/free"
+    ],
+    "longContext": [
+      "kilo-auto/free",
+      "openrouter/free",
+      "nvidia/nemotron-3.5-super-vl:free"
+    ],
+    "longContextTokens": 120000,
+    "candidates": 3,
+    "cooldownMinutes": 5
+  },
+  "lan": {
+    "enabled": false,
+    "host": "0.0.0.0",
+    "port": 18900,
+    "key": ""
+  }
+}

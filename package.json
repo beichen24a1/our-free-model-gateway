@@ -1,0 +1,28 @@
+{
+  "name": "our-free-model-gateway",
+  "version": "0.1.0",
+  "description": "把 dsh-our-free-model 的免费模型通道做成独立的 OpenAI / Anthropic 兼容网关，一个地址给任何程序用",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "start": "node server.mjs",
+    "check": "node scripts/setup.mjs --check",
+    "smoke": "node scripts/smoke.mjs",
+    "modes": "node scripts/modes.mjs",
+    "protocols": "node scripts/protocols.mjs",
+    "tools": "node scripts/tools.mjs",
+    "check:models": "node scripts/check-models.mjs"
+  },
+  "keywords": [
+    "openai-compatible",
+    "anthropic",
+    "llm-gateway",
+    "free-model",
+    "astrbot",
+    "claude-code"
+  ]
+}

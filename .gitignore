@@ -1,0 +1,22 @@
+# 运行时数据：settings.json 里有自动生成的 API Key，stats/catalog 是本机状态
+data/
+
+# 第三方代码，由 scripts/setup.mjs 按需下载，不进仓库
+vendor/
+
+# 参考用的第三方项目（不属于本仓库）
+.refs/
+
+# 依赖
+node_modules/
+
+# 日志与临时文件
+*.log
+*.tmp
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
